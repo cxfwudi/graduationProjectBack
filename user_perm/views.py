@@ -11,23 +11,43 @@ from user.models import UserProfile
 from permissions.models import Permissions
 
 class PermissionManage(View):
+    def getUserPermissions(self,userName):
+        data = []
+        permissionList = userPerm.objects.filter(user=userName)
+        for item in permissionList:
+            perId = item.permission
+            data.append(perId.code)
+        return data
+
     #获取用户权限列表
     def get(self,request):
         userName = request.GET.get('userName')
-        permissionList = userPerm.objects.filter(user = userName)
-        res = {'code':200,'data':[]}
-        print(permissionList)
-        for item in permissionList:
-            perId = item.permission
-            res['data'].append(perId.code)
-        return JsonResponse(res)
+        if(userName):
+            userPermData = self.getUserPermissions(userName)
+            res = {'code':200,'data':userPermData}
+            return JsonResponse(res)
+        else: #获取所用用户权限，用户管理员权限展示
+            page = request.GET.get('page')
+            page = int(page)
+            userList = UserProfile.objects.filter(role = 0)
+            pagingUserList = UserProfile.objects.filter(role = 0).order_by('-updated_time')[(page-1)*3:(page-1)*3+3]
+            allUserPermissions = []
+            for item in pagingUserList:
+                singleUserPermInfo = {}
+                singleUserPermInfo['userName'] = item.username
+                singleUserPermInfo['userAvatar'] = str(item.avatar)
+                singleUserPermInfo['permList'] = self.getUserPermissions(item.username)
+                allUserPermissions.append(singleUserPermInfo)
+            res = {'code':200,'total':len(userList),'data':allUserPermissions}
+            return JsonResponse(res)
+
 
     #为用户添加权限
     def post(self,request):
         json_str = request.body
         json_msg = json.loads(json_str)
         userName = json_msg['userName']
-        perCode  = json_msg['userCode']
+        perCode  = json_msg['roleCode']
         userObj = UserProfile.objects.get(username=userName)
         perObj = Permissions.objects.get(code=perCode)
         userPerm.objects.create(user=userObj,permission=perObj)
@@ -38,7 +58,7 @@ class PermissionManage(View):
         json_str = request.body
         json_msg = json.loads(json_str)
         userName = json_msg['userName']
-        perCode = json_msg['userCode']
+        perCode = json_msg['roleCode']
         userObj = UserProfile.objects.get(username=userName)
         perObj = Permissions.objects.get(code=perCode)
         userPerm.objects.filter(user=userObj,permission=perObj).delete()

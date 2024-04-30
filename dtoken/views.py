@@ -39,7 +39,7 @@ def tokens(request):  #登录
         return  JsonResponse(result)
     #记录会话状态
     token = make_token(username)   #生成token
-    result = {'code':200,'username':username,'data':{'token':token}}
+    result = {'code':200,'username':username,'data':{'token':token,'role':user.role}}
     return JsonResponse(result)
 
 def make_token(username,expire=3600*24):
