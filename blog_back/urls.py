@@ -18,7 +18,9 @@ urlpatterns = [
     path('v1/topics/',include('topic.urls')),
     path('v1/messages/',include('message.urls')),
     path('v1/topicPhotos/',include('topic_photos.urls')),
-    path('v1/permission/',include('user_perm.urls'))
+    path('v1/permission/',include('user_perm.urls')),
+    path('v1/favorite/',include('favorite.urls')),
+    path('v1/collect/',include('collect.urls'))
 ]
 #解决头像上传的问题，MEDIA_URL相当于一个文件路由，
 #请求过来之后会在MEDIA_ROOT下找相应的文件资源

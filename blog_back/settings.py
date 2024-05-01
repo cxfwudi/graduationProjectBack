@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'message',
     'topic_photos',
     'permissions',
-    'user_perm'
+    'user_perm',
+    'favorite',
+    'collect'
 ]
 
 MIDDLEWARE = [

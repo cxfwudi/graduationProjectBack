@@ -30,7 +30,7 @@ class PermissionManage(View):
             page = request.GET.get('page')
             page = int(page)
             userList = UserProfile.objects.filter(role = 0)
-            pagingUserList = UserProfile.objects.filter(role = 0).order_by('-updated_time')[(page-1)*3:(page-1)*3+3]
+            pagingUserList = UserProfile.objects.filter(role = 0).order_by('-updated_time')[(page-1)*5:(page-1)*5+5]
             allUserPermissions = []
             for item in pagingUserList:
                 singleUserPermInfo = {}

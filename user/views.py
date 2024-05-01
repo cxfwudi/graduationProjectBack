@@ -2,6 +2,8 @@ import json
 import random
 from django.conf import settings
 from django.http import JsonResponse
+from user_perm.models import userPerm
+from permissions.models import Permissions
 from django.shortcuts import render
 from .tasks import send_sms_celery
 
@@ -94,7 +96,14 @@ class UserViews(View):
         #处理密码
         p_m = hashlib.md5()
         p_m.update(password_1.encode())  #将字符窜转为字节串
-        UserProfile.objects.create(username=username,nickname=username,password=p_m.hexdigest(),email=email,phone=phone)
+        UserProfile.objects.create(username=username,nickname=username,password=p_m.hexdigest(),email=email,phone=phone,role = identifying)
+
+        #赋值权限
+        newUserPermList = ['0','1','2','3']
+        for item in newUserPermList:
+            userObj = UserProfile.objects.get(username=username)
+            perObj = Permissions.objects.get(code=item)
+            userPerm.objects.create(user=userObj, permission=perObj)
 
         #参数基本检查
         #检查用户名是否可用
