@@ -6,9 +6,41 @@ from django.views import View
 from django.http import JsonResponse
 from user.models import UserProfile
 from topic.models import Topic
+from favorite.models import Favorite
 
 class UserFavorite(View):
     def get(self,request):  #用于查询文章是否被该用户点赞了
-        pass
+        userName = request.GET.get('userName')
+        topicId = request.GET.get('topicId')
+        topicUser = UserProfile.objects.filter(username=userName).first()
+        topic = Topic.objects.filter(id=topicId).first()
+        print(topicUser,topic)
+        try:
+            hasFavorite = Favorite.objects.get(user = topicUser,topic = topic)
+        except Exception as e:
+            res = {'code': 200, 'data': 0}
+            return JsonResponse(res)
+        res = {'code':200,'data':1}
+        return JsonResponse(res)
+
     def post(self,request):  #增加用户文章点赞记录
-        pass
+        favoriteInfo = request.body
+        favoriteInfoJson = json.loads(favoriteInfo)
+        userName = favoriteInfoJson['userName']
+        topicId = favoriteInfoJson['topicId']
+        topicUser = UserProfile.objects.get(username=userName)
+        topic = Topic.objects.get(id=topicId)
+        Favorite.objects.create(user = topicUser,topic = topic)
+        res = {'code':200}
+        return JsonResponse(res)
+
+    def delete(self,request):
+        favoriteInfo = request.body
+        favoriteInfoJson = json.loads(favoriteInfo)
+        userName = favoriteInfoJson['userName']
+        topicId = favoriteInfoJson['topicId']
+        topicUser = UserProfile.objects.get(username=userName)
+        topic = Topic.objects.get(id=topicId)
+        Favorite.objects.filter(user=topicUser, topic=topic).delete()
+        res = {'code': 200}
+        return JsonResponse(res)
